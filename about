@@ -1,5 +1,4 @@
 ABOUT_SHELL_FILES=(
-    ~/.xbash*
     ~/.bash*
     ~/.profile
     /etc/bash.bashrc
