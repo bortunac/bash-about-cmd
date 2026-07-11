@@ -1,0 +1,59 @@
+ABOUT_SHELL_FILES=(
+    ~/.xbash*
+    ~/.bash*
+    ~/.profile
+    /etc/bash.bashrc
+    /etc/profile
+    /etc/profile.d
+    # /home/... other locantions ...
+)
+
+about () 
+{ 
+    if [ -z "$1" ] && [ -t 0 ]; then
+        echo "Usage: about <command> | <list_of_files>";
+        return 1;
+    fi;
+    if [ -t 0 ]; then
+        local EXEC_PATH=$(which "$1" 2>/dev/null);
+        if [ -n "$EXEC_PATH" ]; then
+            if file --mime "$EXEC_PATH" 2>/dev/null | grep --color=auto -q "binary"; then
+                echo -e "\n🔍 **PATH:** $EXEC_PATH \e[31m(Compiled Binary - Printing Header Only)\e[0m";
+                file "$EXEC_PATH";
+            else
+                echo -e "\n🔍 **PATH:** $EXEC_PATH";
+                bat --style=plain --color=always -l bash "$EXEC_PATH" --paging=never 2> /dev/null || cat "$EXEC_PATH";
+            fi;
+        else
+            shopt -s extdebug;
+            declare -F "$1";
+            shopt -u extdebug;
+            
+            # The Ultimate Fallback Loop: Check Function -> Check Alias -> Fallback to Type
+            if declare -f "$1" >/dev/null 2>&1; then
+                declare -f "$1" | bat --style=plain --color=always -l bash --paging=never;
+            elif alias "$1" >/dev/null 2>&1; then
+                alias "$1" | bat --style=plain --color=always -l bash --paging=never;
+                                rg -n --color=always \
+                                        "^[[:space:]]*alias[[:space:]]+$1=" \
+                                        "${ABOUT_SHELL_FILES[@]}" \
+                                        2>/dev/null
+            else
+                type "$1" 2>/dev/null | bat --style=plain --color=always -l bash --paging=never || type "$1";
+            fi;
+        fi;
+    else
+        while IFS= read -r line; do
+            if [ -f "$line" ]; then
+                echo -e "\n\e[33m$line\e[0m";
+                if file --mime "$line" 2>/dev/null | grep --color=auto -q "binary"; then
+                    echo -e "  \e[31m[Skipped binary file]\e[0m";
+                else
+                    bat --style=plain --color=always "$line" --paging=never 2> /dev/null || cat "$line";
+                fi;
+            fi;
+        done;
+    fi
+echo;
+}
+complete -A command about
