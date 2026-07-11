@@ -87,23 +87,4 @@ source ~/.bashrc
 
 
 
----
 
-## Why?
-
-just to answer one simple question:
-
-> **"What is this thing?"**
-
-`about` is a memorable command and automatically chooses the most appropriate way to inspect its target.
-
-`about` is not intended to replace existing Unix tools, it simply provides a convenient front-end that makes command introspection effortless.
-
-> **`man` tells you how to use a command.**
-> **`about` tells you what it actually is.**
-
----
-
-## License
-
-MIT
